@@ -1,0 +1,3 @@
+Build with:
+
+  $ dune build main.bc.js index.html style.css
