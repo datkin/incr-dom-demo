@@ -13,7 +13,10 @@ end = struct
   end
 
   module Action = struct
-    type t = unit [@@deriving sexp_of]
+    type t =
+      | Increment of { idx : int }
+      | Reset of { idx : int }
+    [@@deriving sexp_of]
     let should_log (_ : t) = true
   end
 
@@ -23,14 +26,20 @@ end = struct
 
   let initial_model : Model.t = List.init 100 ~f:(fun _ -> Random.int 100)
 
-  let apply_action (_ : Action.t) (model : Model.t) (_ : State.t) =
-    model
+  let apply_action (action : Action.t) (model : Model.t) (_ : State.t) =
+    let update ~idx ~f =
+      List.mapi model ~f:(fun i c -> if i = idx then f c else c)
+    in
+    match action with
+    | Increment { idx } -> update ~idx ~f:((+) 1)
+    | Reset { idx } -> update ~idx ~f:(const 0)
+  ;;
 
-  let view (model : Model.t Incr.t) ~inject:_ =
+  let view (model : Model.t Incr.t) ~inject =
     let open Vdom in
     let%map model = model in
     let rows =
-      List.mapi model ~f:(fun i count ->
+      List.mapi model ~f:(fun idx count ->
         let color =
           if count < 10
           then "green"
@@ -39,11 +48,14 @@ end = struct
           else "red"
         in
         Node.tr
-          []
+          [
+            Attr.on_click (fun _ev -> inject (Action.Increment { idx }));
+            Attr.on_double_click (fun _ev -> inject (Action.Reset { idx }));
+          ]
           [
             Node.td 
               []
-              [ Node.text (Int.to_string (i + 1)) ];
+              [ Node.text (Int.to_string (idx + 1)) ];
             Node.td 
               [ Attr.style [ ("color", color) ] ]
               [ Node.text (Int.to_string count) ];
