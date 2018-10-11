@@ -69,7 +69,12 @@ end = struct
       ]
   ;;
 
-  let on_startup ~schedule:_ (_ : Model.t) = Deferred.return ()
+  let on_startup ~schedule (model : Model.t) =
+    let l = List.length model in
+    Clock_ns.every
+      (Time_ns.Span.of_sec 0.05)
+      (fun () -> schedule (Action.Increment { idx = Random.int l }));
+    Deferred.return ()
 
   let update_visibility (model : Model.t) = model
 
