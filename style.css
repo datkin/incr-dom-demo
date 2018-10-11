@@ -1,0 +1,44 @@
+html, body {
+  height: 100%;
+  width: 100%;
+  padding: 0;
+  font-size: 15px;
+}
+
+html > *, body > * {
+  font-family: "Muli", sans-serif;
+  font-size: 15px;
+}
+
+table, table td {
+  vertical-align: middle;
+  white-space: pre;
+  text-align: right;
+}
+
+table {
+  border: 1px solid #cbcbcb;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+table > * {
+  font-family: "Muli", sans-serif;
+}
+
+table tr td {
+  border-bottom: 1px solid darkgray;
+  padding: 0.5em;
+}
+
+table tr td {
+  border-left: 1px solid darkgray;
+}
+
+table tr:nth-child(even) td {
+  background-color: #f0f0f0;
+}
+
+table tr:nth-child(odd) td {
+  background-color: #ffffff;
+}
