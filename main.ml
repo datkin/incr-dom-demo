@@ -61,11 +61,18 @@ end = struct
               [ Attr.style [ ("color", color) ] ]
               [ Node.text (Int.to_string count) ];
           ])
+    and total =
+      Incr.Map.unordered_fold
+        model
+        ~init:0
+        ~add:(fun ~key:_ ~data sum -> sum + data)
+        ~remove:(fun ~key:_ ~data sum -> sum - data)
     in
     Node.body
       []
       [
         Node.h3 [] [ Node.text "My app" ];
+        Node.text (sprintf "Total: %d" total);
         Node.table [] (Map.data rows);
       ]
   ;;
