@@ -39,9 +39,8 @@ end = struct
 
   let view (model : Model.t Incr.t) ~inject =
     let open Vdom in
-    let%map model = model in
-    let rows =
-      Map.mapi model ~f:(fun ~key:idx ~data:count ->
+    let%map rows =
+      Incr.Map.mapi model ~f:(fun ~key:idx ~data:count ->
         let color =
           if count < 10
           then "green"
