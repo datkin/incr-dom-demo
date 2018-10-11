@@ -8,7 +8,7 @@ module App : sig
   val initial_model : len:int -> Model.t
 end = struct
   module Model = struct
-    type t = int list
+    type t = int Int.Map.t
     let cutoff = phys_equal
   end
 
@@ -25,11 +25,12 @@ end = struct
   end
 
   let initial_model ~len : Model.t =
-    List.init len ~f:(fun _ -> Random.int 100)
+    List.init len ~f:(fun i -> i, Random.int 100)
+    |> Int.Map.of_alist_exn
 
   let apply_action (action : Action.t) (model : Model.t) (_ : State.t) =
     let update ~idx ~f =
-      List.mapi model ~f:(fun i c -> if i = idx then f c else c)
+      Map.mapi model ~f:(fun ~key:i ~data:c -> if i = idx then f c else c)
     in
     match action with
     | Increment { idx } -> update ~idx ~f:((+) 1)
@@ -40,7 +41,7 @@ end = struct
     let open Vdom in
     let%map model = model in
     let rows =
-      List.mapi model ~f:(fun idx count ->
+      Map.mapi model ~f:(fun ~key:idx ~data:count ->
         let color =
           if count < 10
           then "green"
@@ -66,12 +67,12 @@ end = struct
       []
       [
         Node.h3 [] [ Node.text "My app" ];
-        Node.table [] rows;
+        Node.table [] (Map.data rows);
       ]
   ;;
 
   let on_startup ~schedule (model : Model.t) =
-    let l = List.length model in
+    let l = Map.length model in
     Clock_ns.every
       (Time_ns.Span.of_sec 0.05)
       (fun () -> schedule (Action.Increment { idx = Random.int l }));
