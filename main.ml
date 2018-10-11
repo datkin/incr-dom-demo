@@ -5,7 +5,7 @@ open Incr.Let_syntax
 
 module App : sig
   include App_intf.S_simple
-  val initial_model : Model.t
+  val initial_model : len:int -> Model.t
 end = struct
   module Model = struct
     type t = int list
@@ -24,7 +24,8 @@ end = struct
     type t = unit
   end
 
-  let initial_model : Model.t = List.init 100 ~f:(fun _ -> Random.int 100)
+  let initial_model ~len : Model.t =
+    List.init len ~f:(fun _ -> Random.int 100)
 
   let apply_action (action : Action.t) (model : Model.t) (_ : State.t) =
     let update ~idx ~f =
@@ -82,7 +83,25 @@ end = struct
 end
 
 let () =
+  let len =
+    let uri =
+      Dom_html.window##.location##.search
+      |> Js.to_string
+      |> Uri.of_string
+    in
+    let length =
+      match Uri.get_query_param uri "rows" with
+      | None -> None
+      | Some str ->
+        match Or_error.try_with (fun () -> Int.of_string str) with
+        | Ok len -> Some len
+        | Error err ->
+          Async_js.log_s [%message "Failed to parse row num from url" (err : Error.t)];
+          None
+    in
+    Option.value length ~default:100
+  in
   Start_app.simple
     (module App)
-    ~initial_model:App.initial_model
- 
+    ~initial_model:(App.initial_model ~len)
+;;
