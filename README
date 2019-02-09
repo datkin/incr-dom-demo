@@ -1,3 +1,7 @@
+Transcribed from Cristina Rosu's incr_dom talk:
+
+  https://www.janestreet.com/tech-talks/intro-to-incr-dom/
+
 Build with:
 
   $ dune build main.bc.js index.html style.css
